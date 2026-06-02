@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz CLAREZA</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #f5f3f0 0%, #faf8f6 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #2c2c2a;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-top: 20px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #3c3489;
+        }
+
+        .header p {
+            font-size: 14px;
+            color: #888780;
+            line-height: 1.5;
+        }
+
+        .progress {
+            width: 100%;
+            height: 4px;
+            background: #d3d1c7;
+            border-radius: 2px;
+            margin-bottom: 40px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #7f77dd, #534ab7);
+            border-radius: 2px;
+            transition: width 0.3s ease;
+        }
+
+        .quiz-container {
+            background: white;
+            border-radius: 16px;
+            padding: 32px 24px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+            margin-bottom: 20px;
+        }
+
+        .question {
+            display: none;
+        }
+
+        .question.active {
+            display: block;
+            animation: fadeIn 0.4s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .question h2 {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 24px;
+            color: #2c2c2a;
+            line-height: 1.4;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .option {
+            position: relative;
+            display: flex;
+            align-items: flex-start;
+            padding: 16px;
+            border: 1.5px solid #d3d1c7;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: #faf8f6;
+        }
+
+        .option:hover {
+            border-color: #b4b2a9;
+            background: #f5f3f0;
+        }
+
+        .option input[type="radio"] {
+            margin-right: 12px;
+            margin-top: 2px;
+            cursor: pointer;
+            width: 18px;
+            height: 18px;
+            accent-color: #7f77dd;
+        }
+
+        .option label {
+            cursor: pointer;
+            font-size: 14px;
+            line-height: 1.5;
+            color: #444441;
+        }
+
+        .option input[type="radio"]:checked + label {
+            font-weight: 500;
+            color: #3c3489;
+        }
+
+        .option.selected {
+            background: #eeedfe;
+            border-color: #7f77dd;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 32px;
+        }
+
+        button {
+            flex: 1;
+            padding: 12px 16px;
+            border: 1.5px solid #d3d1c7;
+            background: white;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: #2c2c2a;
+        }
+
+        button:hover {
+            border-color: #b4b2a9;
+            background: #f5f3f0;
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        .btn-next {
+            background: linear-gradient(135deg, #7f77dd, #534ab7);
+            color: white;
+            border-color: transparent;
+            font-weight: 600;
+        }
+
+        .btn-next:hover {
+            background: linear-gradient(135deg, #6f67cd, #3c3289);
+            border-color: transparent;
+        }
+
+        .btn-next:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .result {
+            display: none;
+            text-align: center;
+            padding: 20px 0;
+        }
+
+        .result.active {
+            display: block;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .result-badge {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            background: linear-gradient(135deg, #eeedfe, #d3c5f7);
+        }
+
+        .result h2 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #3c3489;
+        }
+
+        .result-description {
+            font-size: 14px;
+            line-height: 1.8;
+            color: #888780;
+            margin-bottom: 32px;
+        }
+
+        .result-message {
+            background: #f5f3f0;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+            font-size: 13px;
+            line-height: 1.7;
+            color: #5f5e5a;
+        }
+
+        .whatsapp-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 14px 28px;
+            background: linear-gradient(135deg, #25d366, #1da851);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .whatsapp-btn:hover {
+            background: linear-gradient(135deg, #1da851, #0f8e3a);
+            transform: translateY(-2px);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top: 2px solid white;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .footer {
+            text-align: center;
+            font-size: 12px;
+            color: #b4b2a9;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Quiz CLAREZA</h1>
+            <p>Descubra em que fase você e sua empresa se encontram</p>
+        </div>
+
+        <div class="progress">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+
+        <div class="quiz-container">
+            <!-- Pergunta 1 -->
+            <div class="question active">
+                <h2>Como está sua organização diária?</h2>
+                <div class="options">
+                    <div class="option">
+                        <input type="radio" name="q1" value="1" id="q1a">
+                        <label for="q1a">Completo caos, não consigo achar nem o próprio calendário</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="q1" value="2" id="q1b">
+                        <label for="q1b">Tenho algumas coisas anotadas, mas é muito bagunçado</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="q1" value="3" id="q1c">
+                        <label for="q1c">Uso agenda e planilhas, mas sinto falta de otimização</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="q1" value="4" id="q1d">
+                        <label for="q1d">Bem organizado, mas quero integrar mais com IA</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pergunta 2 -->
+            <div class="question">
+                <h2>Você tem documentação/processos definidos no negócio?</h2>
+                <div class="options">
+                    <div class="option">
+                        <input type="radio" name="q2" value="1" id="q2a">
+                        <label for="q2a">Que documentação? Tudo existe na minha cabeça</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="q2" value="2" id="q2b">
+                        <label for="q2b">Tenho alguns documentos espalhados em vários lugares</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="q2" value="3" id="q2c">
+                        <label for="q2c">Tenho um lugar centralizado, mas precisa de melhorias</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="q2" value="4" id="q2d">
+                        <label for="q2d">Meus processos estão mapeados e acessíveis</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pergunta 3 -->
+            <div class="question">
+                <h2>Quanto tempo você gasta procurando informações?</h2>
+                <div class="options">
+                    <div class="option">
+                        <input type="radio" name="q3" value="1" id="q3a">
+                        <label for="q3a">Perco horas por dia procurando coisas</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="q3" value="2" id="q3b">
+                        <label for="q3b">Gasto tempo demais com isso, uns 30-60 min/dia</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="q3" value="3" id="q3c">
+                        <label for="q3c">Razoável, talvez 15-30 min/dia</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="q3" value="4" id="q3d">
+                        <label for="q3d">Bem pouco, encontro tudo rapidinho</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pergunta 4 -->
+            <div class="question">
+                <h2>Como é sua relação com tecnologia?</h2>
+                <div class="options">
+                    <div class="option">
+                        <input type="radio" name="q4" value="1" id="q4a">
+                        <label for="q4a">Fugida, prefiro fazer manualmente</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="q4" value="2" id="q4b">
+                        <label for="q4b">Uso o básico (WhatsApp, Email, Google), mas tenho medo de mais</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="q4" value="3" id="q4c">
+                        <label for="q4c">Uso ferramentas para organizar, mas não exploro muito</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="q4" value="4" id="q4d">
+                        <label for="q4d">Adoro tecnologia e automação, quero mais integração</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pergunta 5 -->
+            <div class="question">
+                <h2>Qual é seu maior desafio agora?</h2>
+                <div class="options">
+                    <div class="option">
+                        <input type="radio" name="q5" value="1" id="q5a">
+                        <label for="q5a">Não consigo focar, é tudo urgente</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="q5" value="2" id="q5b">
+                        <label for="q5b">Crescer mantendo a organização</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="q5" value="3" id="q5c">
+                        <label for="q5c">Automatizar e ganhar tempo</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="q5" value="4" id="q5d">
+                        <label for="q5d">Escalar e delegar com clareza</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Resultado -->
+            <div class="result" id="result">
+                <div class="result-badge" id="resultEmoji"></div>
+                <h2 id="resultTitle"></h2>
+                <p class="result-description" id="resultDescription"></p>
+                <div class="result-message" id="resultMessage"></div>
+                <a href="#" class="whatsapp-btn" id="whatsappBtn" target="_blank">
+                    <span>Conversar no WhatsApp</span>
+                </a>
+            </div>
+
+            <div class="button-group">
+                <button onclick="previousQuestion()" id="btnPrevious" style="display:none;">Voltar</button>
+                <button onclick="nextQuestion()" class="btn-next" id="btnNext" disabled>Próxima</button>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>Quiz feito para ajudar a encontrar a melhor estratégia para você 💜</p>
+        </div>
+    </div>
+
+    <script>
+        const whatsappNumber = '551199999999'; // ALTERAR AQUI COM SEU NÚMERO
+        const questions = document.querySelectorAll('.question');
+        let currentQuestion = 0;
+        const answers = {};
+
+        const resultTexts = {
+            1: {
+                emoji: '🌊',
+                title: 'Fase 1: Caos Organizado',
+                description: 'Você está no início da jornada de organização',
+                message: 'Você precisa urgentemente de CLAREZA! A boa notícia é que há muito potencial aqui. Com um sistema bem estruturado em Notion + IA, você pode transformar esse caos em produtividade. Vamos começar do zero, com calma e estratégia.'
+            },
+            2: {
+                emoji: '🌱',
+                title: 'Fase 2: Organização em Desenvolvimento',
+                description: 'Você já começou, mas precisa de estrutura',
+                message: 'Você tem consciência de que precisa melhorar! Isso já é um grande passo. Sua maior missão agora é centralizar tudo em um lugar (Notion) e criar sistemas que funcionem no automático. Vamos juntas transformar essa desordem em oportunidade.'
+            },
+            3: {
+                emoji: '🎯',
+                title: 'Fase 3: Bem Organizado',
+                description: 'Você tem boas bases, mas falta otimizar',
+                message: 'Parabéns! Você já tem estrutura. Agora é hora de potencializar com automação, IA e integrações que vão liberar seu tempo. Vamos identificar os gargalos e transformá-los em máquinas que trabalham pra você.'
+            },
+            4: {
+                emoji: '✨',
+                title: 'Fase 4: Maestria Organizada',
+                description: 'Você está no topo do jogo de organização',
+                message: 'Incrível! Você já domina a arte da organização. Agora é hora de levar para outro nível com IA generativa, automações avançadas e sistema escalável. Vamos trabalhar na estratégia de crescimento com total clareza.'
+            }
+        };
+
+        document.querySelectorAll('.option').forEach(option => {
+            option.addEventListener('click', () => {
+                const radio = option.querySelector('input[type="radio"]');
+                const questionIndex = Array.from(questions).indexOf(option.closest('.question'));
+                
+                document.querySelectorAll(`.question:nth-child(${questionIndex + 1}) .option`).forEach(opt => {
+                    opt.classList.remove('selected');
+                });
+                
+                option.classList.add('selected');
+                radio.checked = true;
+                
+                document.getElementById('btnNext').disabled = false;
+                answers[`q${questionIndex + 1}`] = radio.value;
+            });
+        });
+
+        function calculateScore() {
+            let total = 0;
+            for (let i = 1; i <= 5; i++) {
+                total += parseInt(answers[`q${i}`]) || 0;
+            }
+            const average = Math.round(total / 5);
+            return Math.max(1, Math.min(4, average));
+        }
+
+        function showResult() {
+            const score = calculateScore();
+            const resultData = resultTexts[score];
+            
+            document.getElementById('resultEmoji').textContent = resultData.emoji;
+            document.getElementById('resultTitle').textContent = resultData.title;
+            document.getElementById('resultDescription').textContent = resultData.description;
+            document.getElementById('resultMessage').textContent = resultData.message;
+            
+            const message = encodeURIComponent(`Oi Amanda! Fiz o quiz CLAREZA e descobri que estou na ${resultData.title}. Gostaria de conversar sobre como você pode me ajudar a ter mais clareza para me organizar e crescer!`);
+            document.getElementById('whatsappBtn').href = `https://wa.me/${whatsappNumber}?text=${message}`;
+            
+            document.getElementById('result').classList.add('active');
+            document.getElementById('btnNext').style.display = 'none';
+            document.getElementById('btnPrevious').style.display = 'block';
+        }
+
+        function nextQuestion() {
+            if (!answers[`q${currentQuestion + 1}`]) return;
+            
+            if (currentQuestion < questions.length - 1) {
+                questions[currentQuestion].classList.remove('active');
+                currentQuestion++;
+                questions[currentQuestion].classList.add('active');
+                
+                document.getElementById('btnNext').disabled = true;
+                document.getElementById('btnPrevious').style.display = 'block';
+                
+                updateProgress();
+            } else {
+                questions[currentQuestion].classList.remove('active');
+                showResult();
+            }
+        }
+
+        function previousQuestion() {
+            if (currentQuestion > 0) {
+                questions[currentQuestion].classList.remove('active');
+                currentQuestion--;
+                questions[currentQuestion].classList.add('active');
+                
+                document.getElementById('btnNext').disabled = false;
+                
+                if (currentQuestion === 0) {
+                    document.getElementById('btnPrevious').style.display = 'none';
+                }
+                
+                updateProgress();
+            } else if (document.getElementById('result').classList.contains('active')) {
+                document.getElementById('result').classList.remove('active');
+                questions[currentQuestion].classList.add('active');
+                document.getElementById('btnNext').style.display = 'block';
+                document.getElementById('btnPrevious').style.display = 'none';
+            }
+        }
+
+        function updateProgress() {
+            const progress = ((currentQuestion + 1) / questions.length) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+        }
+
+        updateProgress();
+    </script>
+</body>
+</html>
